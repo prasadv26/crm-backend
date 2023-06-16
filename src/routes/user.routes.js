@@ -1,7 +1,7 @@
 const {
   validateSignup,
   validateLogin,
-} = require("../../middlewares/auth.middlewares");
+} = require("../middlewares/auth.middlewares");
 const { RegisterUser, Login } = require("../controllers/Auth");
 
 module.exports = (app) => {
