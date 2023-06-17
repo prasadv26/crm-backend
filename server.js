@@ -13,6 +13,7 @@ dotenv.config();
 connectDB();
 
 //routes
+require("./src/routes/auth.routes")(app);
 require("./src/routes/user.routes")(app);
 
 app.listen(process.env.PORT, () => {

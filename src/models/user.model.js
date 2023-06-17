@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { userTypes, userStatus } = require("../utils/constants");
 
 const userSchema = mongoose.Schema({
   name: {
@@ -21,7 +22,14 @@ const userSchema = mongoose.Schema({
   },
   userType: {
     type: String,
-    default: "CUSTOMER",
+    default: userTypes.CUSTOMER,
+    enum: Object.values(userTypes),
+  },
+  userStatus: {
+    type: String,
+    required: true,
+    default: userStatus.APROVED,
+    enum: Object.values(userStatus),
   },
   createdAt: {
     type: Date,

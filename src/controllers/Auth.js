@@ -1,5 +1,6 @@
 const Users = require("../models/user.model");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const RegisterUser = async (req, res) => {
   try {
@@ -10,6 +11,8 @@ const RegisterUser = async (req, res) => {
       email: body.email,
       password: bcrypt.hashSync(body.password, 10),
       userType: body.userType,
+      userStatus: body.userStatus,
+      createdAt: body.createdAt,
     });
 
     const savedUser = await newUser.save();
@@ -35,7 +38,15 @@ const Login = async (req, res) => {
     return res.status(401).send({ message: "Invalid credentials" });
   }
 
-  res.status(200).send({ message: "User Logged in Successfully" });
+  const token = jwt.sign(
+    { id: existingUser.username },
+    process.env.JWT_SECRET,
+    { expiresIn: 300 }
+  );
+
+  res
+    .status(200)
+    .send({ message: `${existingUser.userType} Logged In  token: ${token}` });
 };
 
 module.exports = { RegisterUser, Login };
