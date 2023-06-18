@@ -9,10 +9,16 @@ const {
   verifyAdmin,
   verifySelfOrAdmin,
 } = require("../middlewares/auth.middlewares");
+
+const cache = require("../middlewares/cache.middlewares");
 const { urlBasePath } = require("../utils/constants");
 
 module.exports = (app) => {
-  app.get(`${urlBasePath}/users`, [validateJWT, verifyAdmin], getAllUsers);
+  app.get(
+    `${urlBasePath}/users`,
+    [validateJWT, verifyAdmin, cache(60)],
+    getAllUsers
+  );
   app.get(
     `${urlBasePath}/users/:id`,
     [validateJWT, verifySelfOrAdmin],
