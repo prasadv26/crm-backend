@@ -5,7 +5,7 @@ const userTypes = {
 };
 
 const userStatus = {
-  APROVED: "APROVED",
+  APPROVED: "APPROVED",
   PENDING: "PENDING",
   REJECTED: "REJECTED",
 };

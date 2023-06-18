@@ -57,13 +57,14 @@ const validateJWT = (req, res, next) => {
   }
 
   try {
-    jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
+    jwt.verify(token, process.env.JWT_SECRET, async (err, payload) => {
       if (err) {
         return res.status(403).send({
           message: err.message || "Invalid JWT access token",
         });
       }
-      req.user = payload.id;
+      const user = await Users.findOne({ username: payload.id });
+      req.currentUser = user;
       next();
     });
   } catch (error) {
@@ -72,8 +73,7 @@ const validateJWT = (req, res, next) => {
 };
 
 const verifyAdmin = async (req, res, next) => {
-  const user = await Users.findOne({ username: req.user });
-  if (!(user && user.userType === "ADMIN")) {
+  if (!(req.currentUser && req.currentUser.userType === "ADMIN")) {
     return res
       .status(403)
       .send({ message: "You are Unauthorized to access this page" });
@@ -83,9 +83,13 @@ const verifyAdmin = async (req, res, next) => {
 
 const verifySelfOrAdmin = async (req, res, next) => {
   const askedUser = req.params.id.toLowerCase();
-  const reqUser = await Users.findOne({ username: req.user });
 
-  if (!(req.user === askedUser || reqUser.userType === userTypes.ADMIN)) {
+  if (
+    !(
+      req.currentUser.username === askedUser ||
+      req.currentUser.userType === userTypes.ADMIN
+    )
+  ) {
     return res
       .status(403)
       .send({ message: "You are Unauthorized to access this page" });

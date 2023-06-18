@@ -2,7 +2,7 @@ const {
   getAllUsers,
   getUserById,
   updateUserById,
-  DeleteUserById,
+  deleteUserById,
 } = require("../controllers/User");
 const {
   validateJWT,
@@ -18,6 +18,10 @@ module.exports = (app) => {
     [validateJWT, verifySelfOrAdmin],
     getUserById
   );
-  app.put(`${urlBasePath}/users/:id`, updateUserById);
-  app.delete(`${urlBasePath}/users/:id`, DeleteUserById);
+  app.put(
+    `${urlBasePath}/users/:id`,
+    [validateJWT, verifySelfOrAdmin],
+    updateUserById
+  );
+  app.delete(`${urlBasePath}/users/:id`, deleteUserById);
 };

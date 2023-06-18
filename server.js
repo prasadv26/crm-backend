@@ -15,6 +15,7 @@ connectDB();
 //routes
 require("./src/routes/auth.routes")(app);
 require("./src/routes/user.routes")(app);
+require("./src/routes/ticket.routes")(app);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server started on port: ${process.env.PORT}`);

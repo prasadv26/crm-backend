@@ -1,17 +1,22 @@
 const Users = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { userTypes, userStatus } = require("../utils/constants");
 
 const RegisterUser = async (req, res) => {
   try {
     const body = req.body;
+    let status =
+      body.userType === userTypes.CUSTOMER
+        ? userStatus.APPROVED
+        : userStatus.PENDING;
     const newUser = await new Users({
       name: body.name,
       username: body.username,
       email: body.email,
       password: bcrypt.hashSync(body.password, 10),
       userType: body.userType,
-      userStatus: body.userStatus,
+      userStatus: status,
       createdAt: body.createdAt,
     });
 
@@ -41,7 +46,7 @@ const Login = async (req, res) => {
   const token = jwt.sign(
     { id: existingUser.username },
     process.env.JWT_SECRET,
-    { expiresIn: 300 }
+    { expiresIn: "1d" }
   );
 
   res

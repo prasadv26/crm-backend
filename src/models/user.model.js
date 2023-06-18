@@ -28,7 +28,7 @@ const userSchema = mongoose.Schema({
   userStatus: {
     type: String,
     required: true,
-    default: userStatus.APROVED,
+    default: userStatus.APPROVED,
     enum: Object.values(userStatus),
   },
   createdAt: {

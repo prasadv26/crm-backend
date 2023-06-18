@@ -16,12 +16,23 @@ const getUserById = async (req, res) => {
     res.status(500).send({ message: error.message || "Internal server error" });
   }
 };
-const updateUserById = (req, res) => {};
-const DeleteUserById = (req, res) => {};
+const updateUserById = async (req, res) => {
+  try {
+    const user = await Users.findOne({ username: req.params.id });
+    if (req.body.status) {
+      user.userStatus = req.body.status;
+    }
+    const updatedUser = await user.save();
+    res.status(200).send(updatedUser);
+  } catch (error) {
+    res.status(500).send({ message: error.message || "Internal server error" });
+  }
+};
+const deleteUserById = (req, res) => {};
 
 module.exports = {
   getAllUsers,
   getUserById,
   updateUserById,
-  DeleteUserById,
+  deleteUserById,
 };

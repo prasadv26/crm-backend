@@ -7,8 +7,8 @@ const ticketSchema = mongoose.Schema({
     required: true,
   },
   description: {
-    type: true,
-    requoired: true,
+    type: String,
+    required: true,
   },
   ticketPriority: {
     type: String,
