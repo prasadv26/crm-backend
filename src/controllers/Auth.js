@@ -1,8 +1,14 @@
 const Users = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { userTypes, userStatus } = require("../utils/constants");
+const {
+  userTypes,
+  userStatus,
+  urlBasePath,
+  BASE_URL,
+} = require("../utils/constants");
 const registerUserMail = require("../templates/registerEmailTemplate");
+const passwordResetMail = require("../templates/passwordResetMail");
 
 const RegisterUser = async (req, res) => {
   try {
@@ -56,4 +62,72 @@ const Login = async (req, res) => {
     .send({ message: `${existingUser.userType} Logged In  token: ${token}` });
 };
 
-module.exports = { RegisterUser, Login };
+const ForgetPassword = async (req, res) => {
+  const userExists = await Users.findOne({ email: req.body.email });
+
+  if (!userExists) {
+    return res
+      .status(401)
+      .send({ message: "User with this email does not exist." });
+  }
+
+  const id = userExists._id.toString();
+  console.log(id);
+  const token = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+  try {
+    const updatedUser = await Users.findByIdAndUpdate(
+      { _id: id },
+      { $set: { passwordResetToken: token } },
+      { new: true }
+    );
+  } catch (error) {
+    return res
+      .status(500)
+      .send(error.message || { message: "Error while setting JWT token" });
+  }
+
+  const resetPasswordLink = `${BASE_URL}/${urlBasePath}/reset-password/${id}/${token}`;
+
+  //send email
+  await passwordResetMail(userExists, resetPasswordLink);
+
+  res
+    .status(200)
+    .send({ message: "Password reset link sent on " + userExists.email });
+};
+
+const ResetPassword = async (req, res) => {
+  const { id, token } = req.params;
+  const userExists = await Users.findOne({
+    _id: id,
+    passwordResetToken: token,
+  });
+
+  try {
+    const verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
+    if (!verifiedToken) {
+      return res
+        .status(401)
+        .send({ message: "Invalid JWT. Unauthorized access" });
+    }
+
+    const updatedUser = await Users.findByIdAndUpdate(
+      { _id: id },
+      {
+        $set: {
+          passwordResetToken: "",
+          password: bcrypt.hashSync(req.body.password, 10),
+        },
+      },
+      { new: true }
+    );
+  } catch (error) {
+    return res
+      .status(500)
+      .send(error.message || { message: "Error while setting JWT token" });
+  }
+
+  res.status(200).send({ message: "Password Changed!" });
+};
+
+module.exports = { RegisterUser, Login, ForgetPassword, ResetPassword };

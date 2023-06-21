@@ -31,6 +31,10 @@ const userSchema = mongoose.Schema({
     default: userStatus.APPROVED,
     enum: Object.values(userStatus),
   },
+  passwordResetToken: {
+    type: String,
+    default: "",
+  },
   createdAt: {
     type: Date,
     immutable: true,
